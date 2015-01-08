@@ -681,7 +681,7 @@ LikelihoodHistory=function(Trace,pvalue,Status=FALSE,True.Node)
   }else{plot(like[-1],type = "l",xlab="Iteration",ylab="Log-likelihood Value")}
   
   
-  invisible(table(like[-1]))
+  invisible(like[-1])
 }
 
 ######Parameter Selection
