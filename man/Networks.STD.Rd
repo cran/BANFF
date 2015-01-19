@@ -30,9 +30,11 @@ status=FALSE,fit,show.steps=1,showlikelihood=FALSE,likelihood.frequency=100)
 \item{likelihood.frequency}{a number representing the frequency showing the log-likelihood value simultaneously. For example, setting \code{likelihood.frequency=100} means showing the log-likelihood value every 100 iterations. The default setting is 100 and it is recommended that do not set a small frequency because it slow down the MCMC chain updating}
 }
 \value{
-A list containing the Bayesian information of the MCMC chain
+An object of class "Networks.STD" containing Bayesian information of the MCMC chain
 \describe{
 \item{trace}{a matrix of dimension (iter-nburns) by length(pvalue) containing posterior samples of classification label "g_i"}
+\item{convergence}{MCMC Heidelberger and Welch convergence diagnostic}
+\item{graph}{An igraph graph object of full network}
 \item{model}{a list containing parameters of the MCMC chain for resuming the chain}
 }
 }
@@ -54,9 +56,8 @@ where we define
 This function implements the NET-DPM-1 Zhao et al.(2014). Please refer to the Appendix B.1 for more details. 
 }
 \examples{
-#' ##Creating the network of 10X10 image
 library(igraph)
-library(BANFF)
+###Creating the network of 10X10 image
 g <- graph.lattice(length=10,dim=2)
 net=as(get.adjacency(g,attr=NULL),"matrix")##this is the input of argument 'net'
 ##Assign the signal elements with signal intention 

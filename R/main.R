@@ -52,7 +52,7 @@
 #'@export
 Networks.STD=function(pvalue,net,iter=5000, nburns=2000, 
                       piall=c(0.75, 0.8, 0.85, 0.9),rhoall=c(0.5, 1, 5, 10, 15),
-                      status=FALSE,fit,show.steps=1,showlikelihood=FALSE,likelihood.frequency=100 ){
+                      status=FALSE,fit,show.steps=1,showlikelihood=FALSE,likelihood.frequency=100){
   if(status==FALSE){
   ####Preparing Stage:Defining Parameters, 
   rstat=Transfer(pvalue)###Step1 : Transferring 
@@ -109,14 +109,19 @@ Networks.STD=function(pvalue,net,iter=5000, nburns=2000,
     
   }
   
-  
+  graph <- graph.adjacency(net,mode="undirected")
+  mcmcdata=sapply(1:nrow(sample.save), function(kk) return(t(matrix(sample.save[kk,]))%*%matrix(rstat)))
+  mcmcfile=mcmc(data=mcmcdata)
+  convergence=heidel.diag(mcmcfile, eps=0.1, pvalue=0.05)
   results=list()
-  results$model=model
   results$trace=sample.save
-  
+  results$convergence=convergence
+  results$model=model
+  results$graph=graph
+                         
  
   
-  invisible(results)
+  structure(results,class="Networks.STD")
   
 }
 
@@ -245,10 +250,17 @@ Networks.Fast=function(pvalue,net,iter=5000,nburns=2000,algorithms=c("EM","DPM")
     if (DPparallel==FALSE) {total=Iteration3_DPdensity(iter,wholeindex,dpdensitycluster,net,pirhopair,choice,rstat,v,show.steps)
     }else{total=Iteration3_DPdensity_Par(iter,wholeindex,dpdensitycluster,net,pirhopair,choice,rstat,v,show.steps,n.cores)}
   }
-  
-  
+  mcmcdata=sapply(1:iter, function(kk) return(t(matrix(total[kk,]))%*%matrix(rstat)))
+  mcmcfile=mcmc(data=mcmcdata)
+  convergence=heidel.diag(mcmcfile, eps=0.1, pvalue=0.05)
+  graph <- graph.adjacency(net,mode="undirected")
   networks.fast=list()
   networks.fast$trace=total[(nburns+1):iter,]
+  networks.fast$HyperParameter$pi0=pirhopair$pi0[choice]
+  networks.fast$HyperParameter$rho0=pirhopair$rho0[choice]
+  networks.fast$HyperParameter$rho1=pirhopair$rho1[choice]
+  networks.fast$convergence=convergence
+  networks.fast$graph=graph
   networks.fast$statistics$mean=sapply(1:length(pvalue), function(kk) return(mean(total[,kk])))
   networks.fast$statistics$median=sapply(1:length(pvalue), function(kk) return(median(total[,kk])))
   networks.fast$statistics$var=sapply(1:length(pvalue), function(kk) return(networks.fast$parameter$mean[kk]*(1-networks.fast$parameter$mean[kk])))
@@ -273,7 +285,7 @@ Networks.Fast=function(pvalue,net,iter=5000,nburns=2000,algorithms=c("EM","DPM")
 #  }
   
   
-  invisible(networks.fast) 
+  structure(networks.fast,class="Networks.Fast")
   
   
   
@@ -820,6 +832,67 @@ Subnetwork.Select=function(net,trace,node.based=NULL,infinite=TRUE,steps=5)
   return(subnetwork)
     
 }
+
+########summary the class "Networks.Fast"
+summary.Networks.Fast=function(object, ...){
+  classification=sapply(1:ncol(object$trace),function(kk) return(mean(object$trace[,kk])))
+  eids1=which(classification>=0.5)
+  eids0=which(classification<0.5)
+  classification[eids1]<-1
+  classification[eids0]<-0
+  cat("i.  Convergence results:","\n")
+  print(object$convergence)
+  cat("\n")
+  cat("ii.  Hyper-Parameter Selection:","\n")
+  cat("pi0=",unlist(object$HyperParameter$pi0),"rho0=",unlist(object$HyperParameter$rho0),"rho1=",unlist(object$HyperParameter$rho1),"\n")
+  cat("\n")
+  cat("iii.  Classification Table:","\n")
+  print(table(classification))
+}
+
+########print the class "Networks.Fast"
+plot.Networks.Fast=function(x, ...){
+  ztall=sapply(1:ncol(x$trace),function(kk) return(mean(x$trace[,kk])))
+  eids=which(ztall>0.5)
+  g <- x$graph
+  plot(g,layout=layout.kamada.kawai,mark.groups=eids,vertex.size=1,vertex.label=NA,mark.shape=0)
+}
+
+
+########summary the class "Networks.STD"
+summary.Networks.STD=function(object, ...){
+  classification=sapply(1:ncol(object$trace),function(kk) return(mean(object$trace[,kk])))
+  eids1=which(classification>0)
+  eids0=which(classification<=0)
+  classification[eids1]<-1
+  classification[eids0]<-0
+  cat("i.  Convergence results:","\n")
+  print(object$convergence)
+  cat("\n")
+  cat("ii.  Hyper-Parameter Selection:","\n")
+  cat("pi0=",unlist(object$model$parameter$pi0),"rho0=",unlist(object$model$parameter$rho0),"rho1=",unlist(object$model$parameter$rho1),"\n")
+  cat("\n")
+  cat("iii.  Classification Table:","\n")
+  print(table(classification))
+}
+
+########print the class "Networks.Fast"
+plot.Networks.STD=function(x, ...){
+  ztall=sapply(1:ncol(x$trace),function(kk) return(mean(x$trace[,kk])))
+  eids=which(ztall>0)
+  g <- x$graph
+  plot(g,layout=layout.kamada.kawai,mark.groups=eids,vertex.size=1,vertex.label=NA,mark.shape=0)
+}
+
+
+
+
+
+
+
+
+
+
 
 
 

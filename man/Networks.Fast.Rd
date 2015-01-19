@@ -52,9 +52,11 @@ show.steps=10,showlikelihood=FALSE, likelihood.frequency=100)
 \item{likelihood.frequency}{a number representing the frequency showing the log-likelihood value simultaneously. For example, setting \code{likelihood.frequency=100} means showing the log-likelihood value every 100 iterations. The default setting is 100 and it is recommended that do not set a small frequency because it slow down the MCMC chain updating}
 }
 
-\value{a list of values containing the posterior samples of "z_i" and summary statistics
+\value{An object of class "Networks.Fast" containing a list of values, such as, the posterior samples of "z_i" and summary statistics
 \describe{
 \item{trace}{an length(pvalue) by (iter-nburns) matrix}
+\item{convergence}{MCMC Heidelberger and Welch convergence diagnostic}
+\item{graph}{An igraph graph object of full network}
 \item{statistics}{a list of summary statistics characterizing the posterior distribution of "z_i"
 \describe{
 \item{mean}{posterior mean for each feature}
@@ -102,7 +104,6 @@ Department of Biostatistics and Bioinformatics, Emory University
 ####Gene Network discovery
 ##Generating Scale free Gene Network
 library(igraph)
-library(BANFF)
 g <- barabasi.game(50, power=1, zero.appeal=1.5,directed = FALSE)
 net=as(get.adjacency(g,attr=NULL),"matrix")
 ##Random assign selected genes and make the signal intension as gaussian mixture

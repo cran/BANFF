@@ -1,12 +1,4 @@
-library(pscl)
-library(mclust)
-library(tmvtnorm)
-library(DPpackage)
-library(igraph)
-library(foreach)
-library(doParallel)
-library(network)
-#####Transferring large statistical pvalue into r statistics
+#####Transferring large statistical pvalue into testing statistics
 Transfer=function(pvalue)
 {
   rstat=-(qnorm(pvalue))
