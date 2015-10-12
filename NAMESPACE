@@ -30,6 +30,10 @@ S3method("summary", "Networks.Fast")
 S3method("plot", "Networks.STD")
 S3method("plot", "Networks.Fast")
 
-
+importFrom(graphics, abline, plot)
+importFrom(methods, show)
+importFrom(stats, dist, dnorm, kmeans, median, qnorm,
+     quantile, rnorm, var)
+importFrom(utils, flush.console)
 
 
