@@ -1,5 +1,5 @@
 #####Generating Zi by different setting of pi and rho
-Generating_Zi=function(net,pirhopair,wholeindex,n=30)
+Generating_Zi=function(net,pirhopair,wholeindex,n=5)
 {
   z=wholeindex
   znew=c()
