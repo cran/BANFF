@@ -5,6 +5,11 @@
 #'@param nburns number of burn-in. The default is 2000
 #'@param piall a vector of selections of pi0. The default vector is 0.75, 0.8, 0.85, 0.9. The selections of pi0 should be placed in sequence, from smaller to larger.
 #'@param rhoall a vector of selections of rho0 and rho1. The default vector is 0.5, 1, 5, 10, 15. The selections of rho0 and rho1 should be placed in sequence, from smaller to larger.
+#'@param status default=FALSE
+#'@param fit NULL
+#'@param show.steps number default=1
+#'@param showlikelihood logical default=FALSE
+#'@param likelihood.frequency number default=100
 #'@details This generic function fits a Bayesian Nonparametric Mixture Model for gene selection incorporating network information (Zhao et al., 2014):
 #' \itemize{
 #' \item  r_i| g_i, \strong{theta} ~ N(mu_{g_i}, sigma_{g_i}),
@@ -22,11 +27,14 @@
 #' For this function, The NET-DPM-1, considered as standard function is applied , and more details about the algorithm can be referred from Appnendix B.1 of Zhao et al., 2014
 #'@return The trace of gi showing the evolution of the Monte Carlo Markov Chain
 #'@examples #' ##Creating the network of 10X10 image
+#'\dontrun{
 #' library(igraph)
 #' library(BayesNetDiscovery)
 #' g <- graph.lattice(length=10,dim=2)
-#' net=as(get.adjacency(g,attr=NULL),"matrix")##this is the input of argument \code{net}
-#' ##Assign the signal elements with signal intenstion as normal distribution N(1,0.2). While noise is set as N(0,0.2) 
+#' ## the input of argument \code{net}
+#' net=as(get.adjacency(g,attr=NULL),"matrix")
+#' ##Assign the signal elements with signal intenstion as normal distribution N(1,0.2). 
+#' While noise is set as N(0,0.2) 
 #' newz=rep(0,100)
 #' for (i in 3:7)
 #' {
@@ -46,7 +54,9 @@
 #' image(matrix(testcov,10,10),col=gray(seq(0,1,length=255)))
 #' ##Transform the signals into pvalue form and begin identification
 #' pvalue=pnorm(-testcov)
-#' total=Networks.STD(pvalue,net,iter=5000,piall=c(0.8, 0.85, 0.9, 0.95),rhoall=c(0.5,1,5,10,15))
+#' total=Networks.STD(pvalue,net,iter=5000,piall=c(0.8, 0.85, 0.9, 0.95),
+#' rhoall=c(0.5,1,5,10,15))
+#' }
 #'@references Zhao, Y.*, Kang, J., Yu, T. A Bayesian nonparametric mixture model for gene and gene-sub network selection
 #' Annals of Applied Statistics, In press: 2014. 
 #'@export
@@ -77,7 +87,7 @@ Networks.STD=function(pvalue,net,iter=5000, nburns=2000,
     
     if(jj%%show.steps==0){
       cat("iteration:",jj,"\n")
-      flush.console()}
+      utils::flush.console()}
     for (num1 in 1:length(model$wholeindex)){
       model=Step1_1_Update_gi_zi(model,num1)
       model=Step1_2_Check(model=model,num1)
@@ -91,8 +101,8 @@ Networks.STD=function(pvalue,net,iter=5000, nburns=2000,
         mylog<-0
         mu0=mean(rstat[which(model$wholeindex<=0)])
         mu1=mean(rstat[which(model$wholeindex>=1)])
-        var0=var(rstat[which(model$wholeindex<=0)])
-        var1=var(rstat[which(model$wholeindex>=1)])
+        var0=stats::var(rstat[which(model$wholeindex<=0)])
+        var1=stats::var(rstat[which(model$wholeindex>=1)])
         for(num1 in 1:length(rstat)){
           
           if(model$wholeindex[num1]==0){
@@ -103,16 +113,16 @@ Networks.STD=function(pvalue,net,iter=5000, nburns=2000,
           
         }
         cat("Now for the step:" ,jj, "the log-likelihood value is" ,sum(mylog) , "\n")
-        flush.console()
+        utils::flush.console()
       }
     }
     
   }
   
-  graph <- graph.adjacency(net,mode="undirected")
+  graph <- igraph::graph.adjacency(net,mode="undirected")
   mcmcdata=sapply(1:nrow(sample.save), function(kk) return(t(matrix(sample.save[kk,]))%*%matrix(rstat)))
-  mcmcfile=mcmc(data=mcmcdata)
-  convergence=heidel.diag(mcmcfile, eps=0.1, pvalue=0.05)
+  mcmcfile=coda::mcmc(data=mcmcdata)
+  convergence=coda::heidel.diag(mcmcfile, eps=0.1, pvalue=0.05)
   results=list()
   results$trace=sample.save
   results$convergence=convergence

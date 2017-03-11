@@ -8,8 +8,8 @@ LikelihoodHistory=function(Trace,pvalue,Status=FALSE,True.Node)
   {
     mu0=mean(rstat[which(Trace[i,]<=0)])
     mu1=mean(rstat[which(Trace[i,]>=1)])
-    var0=var(rstat[which(Trace[i,]<=0)])
-    var1=var(rstat[which(Trace[i,]>=1)])
+    var0=stats::var(rstat[which(Trace[i,]<=0)])
+    var1=stats::var(rstat[which(Trace[i,]>=1)])
     if (is.na(var0)){var0=var1
     }else if (is.na(var1)){var1=var0}
     for(num1 in 1:ncol(Trace)){
@@ -26,8 +26,8 @@ LikelihoodHistory=function(Trace,pvalue,Status=FALSE,True.Node)
     
     mu0=mean(rstat[which(True.Node<=0)])
     mu1=mean(rstat[which(True.Node>=1)])
-    var0=var(rstat[which(True.Node<=0)])
-    var1=var(rstat[which(True.Node>=1)])
+    var0=stats::var(rstat[which(True.Node<=0)])
+    var1=stats::var(rstat[which(True.Node>=1)])
     if (is.na(var0)){var0=var1
     }else if (is.na(var1)){var1=var0}
     for(num1 in 1:length(rstat)){
@@ -39,9 +39,9 @@ LikelihoodHistory=function(Trace,pvalue,Status=FALSE,True.Node)
       }
     }
     like.true=sum(mylog)
-    plot(like[-1],type = "l",ylim=range(like[-1],like.true),xlab="Iteration",ylab="Log-likelihood Value")
-    abline(a=like.true,b=0,col="red")
-  }else{plot(like[-1],type = "l",xlab="Iteration",ylab="Log-likelihood Value")}
+    graphics::plot(like[-1],type = "l",ylim=range(like[-1],like.true),xlab="Iteration",ylab="Log-likelihood Value")
+    graphics::abline(a=like.true,b=0,col="red")
+  }else{graphics::plot(like[-1],type = "l",xlab="Iteration",ylab="Log-likelihood Value")}
   
   
   invisible(like[-1])

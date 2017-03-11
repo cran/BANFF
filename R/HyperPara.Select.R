@@ -12,8 +12,8 @@ HyperPara.Select=function(net,pvalue,piall,rhoall,n=30)
       
       mu0=mean(rstat[which(znew[i,]==0)])
       mu1=mean(rstat[which(znew[i,]==1)])
-      var0=var(rstat[which(znew[i,]==0)])
-      var1=var(rstat[which(znew[i,]==1)])
+      var0=stats::var(rstat[which(znew[i,]==0)])
+      var1=stats::var(rstat[which(znew[i,]==1)])
       if(znew[i,num1]==0){
         mylog[num1]<--(rstat[num1]-mu0)^2/(2*var0)-log(sqrt(var0))
       }else{

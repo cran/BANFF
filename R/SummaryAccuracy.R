@@ -29,9 +29,9 @@ SummaryAccuracy=function(Trace,No.Sets,Type.Accuracy=c("Node","Sub-network"),Tru
     results$FPR=finalratioFsum
     results$FPR.average=mean(finalratioFsum)
     results$FDR=(1-results$TPR.average)*length(indexone)/(length(indexone)+length(indexzero))+results$FPR.average*length(indexzero)/(length(indexone)+length(indexzero))
-    show(results$TPR.average)
-    show(results$FPR.average)
-    show(results$FDR.average)
+    methods::show(results$TPR.average)
+    methods::show(results$FPR.average)
+    methods::show(results$FDR.average)
   }else if(Type.Accuracy=="Sub-network")
   {
     if (Type.Net.Accuracy=="Marginal")
@@ -41,7 +41,7 @@ SummaryAccuracy=function(Trace,No.Sets,Type.Accuracy=c("Node","Sub-network"),Tru
       for (i in 0:(No.Sets))
       {
         cat("Data Set: ",i,"\n")
-        flush.console()
+        utils::flush.console()
         
         j=c((i*nrow(Trace)/No.Sets+1):(i*nrow(Trace)/No.Sets+nrow(Trace)/No.Sets))
         new1=Trace[j,]
@@ -54,7 +54,7 @@ SummaryAccuracy=function(Trace,No.Sets,Type.Accuracy=c("Node","Sub-network"),Tru
       results$TPR.average=x/No.Sets
       results$FPR.average=y/No.Sets
       results$FDR.average=y/(x+y)
-      show(results)
+      methods::show(results)
     }else if (Type.Net.Accuracy=="Sample")
     {
       x=0
@@ -63,14 +63,14 @@ SummaryAccuracy=function(Trace,No.Sets,Type.Accuracy=c("Node","Sub-network"),Tru
       {
         if (i%%(nrow(Trace)/No.Sets)==0){
           cat("Data Set: ",i/(nrow(Trace)/No.Sets),"\n")
-          flush.console()}
+          utils::flush.console()}
         if (length(which(Trace[i,TruePositive.Net]>=1))>=length(TruePositive.Net)*Tolerance & length(which(Trace[i,FalsePositive.Net]>=1))<=length(FalsePositive.Net)*(1-Tolerance)){x=x+1}
         if (length(which(Trace[i,TruePositive.Net]>=1))>=length(TruePositive.Net)*Tolerance & length(which(Trace[i,FalsePositive.Net]>=1))>=length(FalsePositive.Net)*(1-Tolerance)){y=y+1}
       }
       results$TPR.average=x/nrow(Trace)
       results$FPR.average=y/nrow(Trace)
       results$FDR.average=y/(x+y)
-      show(results)
+      methods::show(results)
     }
     
   }

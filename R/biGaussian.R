@@ -13,7 +13,7 @@ Bi.Gaussian.Sim=function(mode,sigma1,sigma2,n)
   sigma = c(sigma1,sigma2)
   z = sample(c(1,2),size=n, prob=weight,replace=TRUE)
   
-  r = rnorm(n,mean=mu[z],sd=sigma[z])
+  r = stats::rnorm(n,mean=mu[z],sd=sigma[z])
   if((z==1)&(r>=0)){r=-r
   }else if((z==2)&(r<=0)){r=-r}
   return(r)

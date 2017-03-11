@@ -6,8 +6,8 @@ Pi_rho_selecting=function(znew,rstat,piall,rhoall)
   for(i in 1:(length(piall)*sum(seq(length(rhoall))-1))){
     mu0=mean(rstat[which(znew[i,]==0)])
     mu1=mean(rstat[which(znew[i,]==1)])
-    var0=var(rstat[which(znew[i,]==0)])
-    var1=var(rstat[which(znew[i,]==1)])
+    var0=stats::var(rstat[which(znew[i,]==0)])
+    var1=stats::var(rstat[which(znew[i,]==1)])
     for(num1 in 1:length(rstat)){
       if(znew[i,num1]==0){
         mylog[num1]<--(rstat[num1]-mu0)^2/(2*var0)-log(sqrt(var0))

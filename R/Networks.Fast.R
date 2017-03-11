@@ -2,11 +2,18 @@
 #'@param pvalue a vector of p-values obtained from large scale statistical hypothesis testing
 #'@param net a n by n network configuration, n is the length of pvalue
 #'@param iter number of iterations. The default is 5000
-#'@param nburn number of burn-in. The default is 2000
-#'@param initials the way you choose to get the inital posteritor samples of parameters produced by DPM fitting. Generating initals by function Mclust() when you set "mclust" or by DPdensity() when you set "DPdensity". It is recommended to choose "Mclust" when the dimension of data is large, and to choose "DPdensity" when the dimenstion is small.
+#'@param nburns number of burn-in. The default is 2000
+#'@param algorithms vector, either "EM" or "DPM"
+#'@param DPM.mcmc a list
+#'@param DPM.prior a list
+#'@param DPparallel logical. 
+#'@param n.cores number of cores
 #'@param v number of iterations set for DPM fitting by "DPdensity". v is only valid when you choose initals as "DPdensity"
 #'@param piall a vector of selections of pi0. The default vector is 0.75, 0.8, 0.85, 0.9. The selections of pi0 should be placed in sequence, from smaller to larger.
 #'@param rhoall a vector of selections of rho0 and rho1. The default vector is 1, 2, 5, 10, 15. The selections of rho0 and rho1 should be placed in sequence, from smaller to larger.
+#'@param show.steps number, default=10
+#'@param showlikelihood logical, default=FALSE 
+#'@param likelihood.frequency number, default=100
 #'@details This generic function fits a Bayesian Nonparametric Mixture Model for gene selection incorporating network information (Zhao et al., 2014):
 #' \itemize{
 #' \item  r_i| g_i, \strong{theta} ~ N(mu_{g_i}, sigma_{g_i}),
@@ -30,13 +37,17 @@
 #'\item{var}{the variance of the distribution for each element}
 #'\item{quantile}{the quantiles of the distribution for each element}
 #'}
-#'@examples ####Example1. For a 10X10 image with 5X5 signal for example
+#'@examples 
+#'\dontrun{
+#' ####Example1. For a 10X10 image with 5X5 signal for example
 #' ##Creating the network of 10X10 image
 #' library(igraph)
 #' library(BayesNetDiscovery)
 #' g <- graph.lattice(length=10,dim=2)
-#' net=as(get.adjacency(g,attr=NULL),"matrix")##this is the input of argument \code{net}
-#' ##Assign the signal elements with signal intenstion as normal distribution N(1,0.2). While noise is set as N(0,0.2) 
+#' ##the input of argument \code{net}
+#' net=as(get.adjacency(g,attr=NULL),"matrix")
+#' ## Assign the signal elements with signal intenstion as normal distribution N(1,0.2). 
+#' ## While noise is set as N(0,0.2) 
 #' newz=rep(0,100)
 #' for (i in 3:7)
 #' {
@@ -54,7 +65,8 @@
 #' image(matrix(testcov,10,10),col=gray(seq(0,1,length=255)))
 #' ##Transform the signals into pvalue form and begin identification
 #' pvalue=pnorm(-testcov)
-#' total2=Networks.Fast(pvalue,net,iter=5000,initials="mclust",piall=c(0.8, 0.85, 0.9, 0.95),rhoall=c(0.5,1,5,10,15))
+#' total2=Networks.Fast(pvalue,net,iter=5000,piall=c(0.8, 0.85, 0.9, 0.95),
+#' rhoall=c(0.5,1,5,10,15))
 #' 
 #' 
 #' 
@@ -69,23 +81,25 @@
 #' ##Random assign selected genes and make the signal intension as gaussian mixture
 #' newz=rep(c(1,0,0,1,0),10)
 #' Simnorm=function(n){
-#' weight = c(0.4, 0.6)
-#'mu = c(5,4)
-#'sigma = c(1,0.5)
-#'z = sample(c(1,2),size=n, prob=weight,replace=TRUE)
-#'r = rnorm(n,mean=mu[z],sd=sigma[z])
-#'return(r)
-#'}
-#'testcov<-0
-#'for(i in 1:50){
-#'  if(newz[i]==0){
-#'    testcov[i]<-rnorm(1,mean=0,sd=1)
-#'  }else{
+#'   weight = c(0.4, 0.6)
+#'   mu = c(5,4)
+#'   sigma = c(1,0.5)
+#'   z = sample(c(1,2),size=n, prob=weight,replace=TRUE)
+#'   r = rnorm(n,mean=mu[z],sd=sigma[z])
+#'   return(r)
+#' }
+#' testcov<-0
+#' for(i in 1:50){
+#'   if(newz[i]==0){
+#'     testcov[i]<-rnorm(1,mean=0,sd=1)
+#'    }else{
 #'   testcov[i]<-Simnorm(1)
-#'  }
-#'}
+#'   }
+#' }
 #'pvalue=pnorm(-testcov)
-#'total1=Networks.Fast(pvalue,net,iter=5000,v=20,initials="DPdensity",piall=c(0.8, 0.85, 0.9, 0.95),rhoall=c(1, 2, 5, 10, 15))
+#'total1=Networks.Fast(pvalue,net,iter=5000,v=20,piall=c(0.8, 0.85, 0.9, 0.95),
+#'rhoall=c(1, 2, 5, 10, 15))
+#'}
 #'@export
 Networks.Fast=function(pvalue,net,iter=5000,nburns=2000,algorithms=c("EM","DPM"),v=20,DPM.mcmc=list(nburn=2000,nsave=1,nskip=0,ndisplay=10),DPM.prior=list(a0=2,b0=1,m2=rep(0,1),s2=diag(100000,1),
                                                                                                                                                            psiinv2=solve(diag(0.5,1)),
@@ -111,7 +125,7 @@ Networks.Fast=function(pvalue,net,iter=5000,nburns=2000,algorithms=c("EM","DPM")
   print("Iteration Begins~")
   if(algorithms=="EM")
   {
-    mclust=Mclust(rstat)
+    mclust=mclust::Mclust(rstat)
     if (length(mclust$parameter$mean)==1) {warning("warning: the input is not appropriate for mclust since only one cluster was detected by the function Mclust,Please try other methods" )}
     if (length(mclust$parameter$mean)==1) break
     hodcmclust=HODCMclust(mclust,rstat)        
@@ -122,9 +136,9 @@ Networks.Fast=function(pvalue,net,iter=5000,nburns=2000,algorithms=c("EM","DPM")
     }else{total=Iteration3_DPdensity_Par(iter,wholeindex,dpdensitycluster,net,pirhopair,choice,rstat,v,show.steps,n.cores)}
   }
   mcmcdata=sapply(1:iter, function(kk) return(t(matrix(total[kk,]))%*%matrix(rstat)))
-  mcmcfile=mcmc(data=mcmcdata)
-  convergence=heidel.diag(mcmcfile, eps=0.1, pvalue=0.05)
-  graph <- graph.adjacency(net,mode="undirected")
+  mcmcfile=coda::mcmc(data=mcmcdata)
+  convergence=coda::heidel.diag(mcmcfile, eps=0.1, pvalue=0.05)
+  graph <- igraph::graph.adjacency(net,mode="undirected")
   networks.fast=list()
   networks.fast$trace=total[(nburns+1):iter,]
   networks.fast$HyperParameter$pi0=pirhopair$pi0[choice]
@@ -133,9 +147,9 @@ Networks.Fast=function(pvalue,net,iter=5000,nburns=2000,algorithms=c("EM","DPM")
   networks.fast$convergence=convergence
   networks.fast$graph=graph
   networks.fast$statistics$mean=sapply(1:length(pvalue), function(kk) return(mean(total[,kk])))
-  networks.fast$statistics$median=sapply(1:length(pvalue), function(kk) return(median(total[,kk])))
+  networks.fast$statistics$median=sapply(1:length(pvalue), function(kk) return(stats::median(total[,kk])))
   networks.fast$statistics$var=sapply(1:length(pvalue), function(kk) return(networks.fast$parameter$mean[kk]*(1-networks.fast$parameter$mean[kk])))
-  networks.fast$statistics$quantile=sapply(1:length(pvalue), function(kk) return(quantile(total[,kk])))
+  networks.fast$statistics$quantile=sapply(1:length(pvalue), function(kk) return(stats::quantile(total[,kk])))
   
   #  if (trace==FALSE){
   #    show(networks.fast$parameter)       

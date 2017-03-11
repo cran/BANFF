@@ -7,12 +7,12 @@ Iteration3_DPdensity_Par<-function(iter,wholeindex,dpdensitycluster,net,pirhopai
   kk<-0
   mu0=sapply(1:v, function(kk) return(mean(rstat[which(dpdensitycluster[kk,]==0)])))
   mu1=sapply(1:v, function(kk) return(mean(rstat[which(dpdensitycluster[kk,]==1)])))
-  var0=sapply(1:v, function(kk) return(var(rstat[which(dpdensitycluster[kk,]==0)])))
-  var1=sapply(1:v, function(kk) return(var(rstat[which(dpdensitycluster[kk,]==1)])))
-  registerDoParallel( cores=n.cores)
+  var0=sapply(1:v, function(kk) return(stats::var(rstat[which(dpdensitycluster[kk,]==0)])))
+  var1=sapply(1:v, function(kk) return(stats::var(rstat[which(dpdensitycluster[kk,]==1)])))
+  doParallel::registerDoParallel( cores=n.cores)
   
   
-  ztemp<-foreach (kk = 1:v) %dopar% {
+  ztemp<-foreach::foreach (kk = 1:v)%dopar% {
     mu0new=mu0[kk]
     mu1new=mu1[kk]
     if (is.na(var0[kk])){var0[kk]=var1[kk]
@@ -25,7 +25,7 @@ Iteration3_DPdensity_Par<-function(iter,wholeindex,dpdensitycluster,net,pirhopai
       
       if(jj%%show.steps==0){
         cat("iter: ",jj,"\n")
-        flush.console()
+        utils::flush.console()
       }
       for(num1 in 1:length(wholeindex)){
         ztemp=c()
@@ -55,6 +55,6 @@ Iteration3_DPdensity_Par<-function(iter,wholeindex,dpdensitycluster,net,pirhopai
     
   }
   results=t(sapply(1:iter, function(it) return(ztemp[[sample(1:v,1)]][it,])))
-  stopImplicitCluster()
+  doParallel::stopImplicitCluster()
   return(results)
 }

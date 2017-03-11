@@ -56,7 +56,7 @@ HODCMclust=function(mclust,rstat)
           break}
         }
         
-        if (mclust$parameter$variance$modelName!="E"){mclust$parameter$variance$sigmasq[l]=var(rstat[which(mclust$classification==l)])}
+        if (mclust$parameter$variance$modelName!="E"){mclust$parameter$variance$sigmasq[l]=stats::var(rstat[which(mclust$classification==l)])}
         }else if (l>lmin){mclust$parameter$mean[l]=mclust$parameter$mean[l+1]
         mclust$parameter$variance$sigmasq[l]=mclust$parameter$variance$sigmasq[l+1]
         mclust$parameter$pro[l]=mclust$parameter$pro[l+1]
@@ -73,8 +73,8 @@ HODCMclust=function(mclust,rstat)
     index=sort(unique(mclust$classification))
     hodcmclust$mean[1]=mean(rstat[which(mclust$classification==index[1])])
     hodcmclust$mean[2]=mean(rstat[which(mclust$classification==index[2])])
-    hodcmclust$variance[1]=var(rstat[which(mclust$classification==index[1])])
-    hodcmclust$variance[2]=var(rstat[which(mclust$classification==index[2])])
+    hodcmclust$variance[1]=stats::var(rstat[which(mclust$classification==index[1])])
+    hodcmclust$variance[2]=stats::var(rstat[which(mclust$classification==index[2])])
     hodcmclust$pro[1]=length(rstat[which(mclust$classification==index[1])])/length(rstat)
     hodcmclust$pro[2]=length(rstat[which(mclust$classification==index[2])])/length(rstat)
     hodcmclust$classification=mclust$classification}

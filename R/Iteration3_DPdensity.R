@@ -7,13 +7,13 @@ Iteration3_DPdensity<-function(iter,wholeindex,dpdensitycluster,net,pirhopair,ch
   
   mu0=sapply(1:v, function(kk) return(mean(rstat[which(dpdensitycluster[kk,]==0)])))
   mu1=sapply(1:v, function(kk) return(mean(rstat[which(dpdensitycluster[kk,]==1)])))
-  var0=sapply(1:v, function(kk) return(var(rstat[which(dpdensitycluster[kk,]==0)])))
-  var1=sapply(1:v, function(kk) return(var(rstat[which(dpdensitycluster[kk,]==1)])))
+  var0=sapply(1:v, function(kk) return(stats::var(rstat[which(dpdensitycluster[kk,]==0)])))
+  var1=sapply(1:v, function(kk) return(stats::var(rstat[which(dpdensitycluster[kk,]==1)])))
   for(jj in 1: iter){
     
     if(jj%%show.steps==0){
       cat("iter: ",jj,"\n")
-      flush.console()
+      utils::flush.console()
     }
     for(num1 in 1:length(wholeindex)){
       ztemp=c()

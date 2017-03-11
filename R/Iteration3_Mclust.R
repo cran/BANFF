@@ -7,7 +7,7 @@ Iteration3_Mclust<-function(iter,wholeindex,hodcmclust,net,pirhopair,choice,rsta
     
     if(jj%%show.steps==0){
       cat("iter: ",jj,"\n")
-      flush.console()
+      utils::flush.console()
     }
     for(num1 in 1:length(wholeindex)){
       ztemp=c()
@@ -41,8 +41,8 @@ Iteration3_Mclust<-function(iter,wholeindex,hodcmclust,net,pirhopair,choice,rsta
         mylog<-0
         mu0=mean(rstat[which(total[jj,]<=0)])
         mu1=mean(rstat[which(total[jj,]>=1)])
-        var0=var(rstat[which(total[jj,]<=0)])
-        var1=var(rstat[which(total[jj,]>=1)])
+        var0=stats::var(rstat[which(total[jj,]<=0)])
+        var1=stats::var(rstat[which(total[jj,]>=1)])
         for(num1 in 1:length(rstat)){
           
           if(total[jj,num1]<=0){

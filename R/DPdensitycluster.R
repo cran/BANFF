@@ -10,7 +10,7 @@ DPdensitycluster<-function(v,rstat,DPM.mcmc,DPM.prior){
   #prior2 <- list(a0=2,b0=1,m2=rep(0,1),s2=diag(100000,1),
   #              psiinv2=solve(diag(0.5,1)),
   #             nu1=4,nu2=4,tau1=1,tau2=100)
-  fit<-DPdensity(rstat,prior=DPM.prior,mcmc=mcmc,status=TRUE)
+  fit<-DPpackage::DPdensity(rstat,prior=DPM.prior,mcmc=mcmc,status=TRUE)
   
   for(oo in 1:v){
     nburn <-0
@@ -22,7 +22,7 @@ DPdensitycluster<-function(v,rstat,DPM.mcmc,DPM.prior){
     prior2 <- list(a0=2,b0=1,m2=rep(0,1),s2=diag(100000,1),
                    psiinv2=solve(diag(0.5,1)),
                    nu1=4,nu2=4,tau1=1,tau2=100)
-    fit<-DPdensity(rstat,prior=prior2,mcmc=mcmc,state=fit$state,status=FALSE)
+    fit<-DPpackage::DPdensity(rstat,prior=prior2,mcmc=mcmc,state=fit$state,status=FALSE)
     
     ##calculate cluster
     ss<-fit$state$ss
@@ -37,14 +37,14 @@ DPdensitycluster<-function(v,rstat,DPM.mcmc,DPM.prior){
     
     
     if(num==2 | num==1){results[[oo]]<-ss-1}else{
-      #hh1<-1/2/sqrt(pi*news[1])+1/2/sqrt(pi*news[2])-2*dnorm(newm[1],newm[2],sd=sqrt(news[1]+news[2]))
+      #hh1<-1/2/sqrt(pi*news[1])+1/2/sqrt(pi*news[2])-2*stats::dnorm(newm[1],newm[2],sd=sqrt(news[1]+news[2]))
       
-      #hh2<-1/2/sqrt(pi*news[2])+1/2/sqrt(pi*news[3])-2*dnorm(newm[2],newm[3],sd=sqrt(news[2]+news[3]))
+      #hh2<-1/2/sqrt(pi*news[2])+1/2/sqrt(pi*news[3])-2*stats::dnorm(newm[2],newm[3],sd=sqrt(news[2]+news[3]))
       
       clmatrix<-matrix(rep(0,num*num),ncol=num,nrow=num)
       for(i in 1:num){
         for(j in 1:num){
-          clmatrix[i,j]<-dnorm(newm[i],newm[j],sd=sqrt(news[i]+news[j]))
+          clmatrix[i,j]<-stats::dnorm(newm[i],newm[j],sd=sqrt(news[i]+news[j]))
           
         }
       }

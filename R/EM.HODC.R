@@ -9,14 +9,17 @@
 #'\item{pro}{the probability of each of two clusters}
 #'\item{classificaiton}{The classification corresponding to each cluster}
 #'}
-#'@examples rstat=c(rnorm(50,mean=1),rnorm(50,mean=2),rnorm(100,mean=4),rnorm(100,mean=8))
+#'@examples 
+#'\dontrun{
+#'rstat=c(rnorm(50,mean=1),rnorm(50,mean=2),rnorm(100,mean=4),rnorm(100,mean=8))
 #'pvalue=pnorm(-rstat)
-#'mclustHODC=MclustHODC(pvalue)
+#'mclustHODC=EM.HODC(pvalue)
+#'}
 #'@export
 EM.HODC=function(pvalue)
 {
   rstat=Transfer(pvalue)
-  mclust=Mclust(rstat)
+  mclust=mclust::Mclust(rstat)
   
   while (length(mclust$parameter$variance$sigmasq)!=length(unique(mclust$parameter$variance$sigmasq))){
     for (i in 1:length(mclust$parameter$mean)){
@@ -74,7 +77,7 @@ EM.HODC=function(pvalue)
           break}
         }
         
-        if (mclust$parameter$variance$modelName!="E"){mclust$parameter$variance$sigmasq[l]=var(rstat[which(mclust$classification==l)])}
+        if (mclust$parameter$variance$modelName!="E"){mclust$parameter$variance$sigmasq[l]=stats::var(rstat[which(mclust$classification==l)])}
         }else if (l>lmin){mclust$parameter$mean[l]=mclust$parameter$mean[l+1]
         mclust$parameter$variance$sigmasq[l]=mclust$parameter$variance$sigmasq[l+1]
         mclust$parameter$pro[l]=mclust$parameter$pro[l+1]
@@ -91,8 +94,8 @@ EM.HODC=function(pvalue)
     index=sort(unique(mclust$classification))
     hodcmclust$mean[1]=mean(rstat[which(mclust$classification==index[1])])
     hodcmclust$mean[2]=mean(rstat[which(mclust$classification==index[2])])
-    hodcmclust$variance[1]=var(rstat[which(mclust$classification==index[1])])
-    hodcmclust$variance[2]=var(rstat[which(mclust$classification==index[2])])
+    hodcmclust$variance[1]=stats::var(rstat[which(mclust$classification==index[1])])
+    hodcmclust$variance[2]=stats::var(rstat[which(mclust$classification==index[2])])
     hodcmclust$pro[1]=length(rstat[which(mclust$classification==index[1])])/length(rstat)
     hodcmclust$pro[2]=length(rstat[which(mclust$classification==index[2])])/length(rstat)
     hodcmclust$classification=mclust$classification

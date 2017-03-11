@@ -4,7 +4,7 @@ Subnetwork.Select=function(net,trace,node.based=NULL,infinite=TRUE,steps=5)
   ztall=sapply(1:ncol(trace),function(kk) return(mean(trace[,kk])))
   eids=which(ztall>0.5)
   deids=node.based
-  g<-network(net)
+  g<-network::network(net)
   subnetwork=list()
   delete=NULL
   C=NULL
@@ -25,7 +25,7 @@ Subnetwork.Select=function(net,trace,node.based=NULL,infinite=TRUE,steps=5)
       for (i in 1:length(deids))
       {
         C=NULL
-        A=get.neighborhood(g,deids[i],"combined")
+        A=network::get.neighborhood(g,deids[i],"combined")
         repeat{
           delete=NULL
           if (length(A)!=0){A=unique(unlist(sapply(1:length(A),function(i) get.neighborhood(g,A[i],"combined"))))}

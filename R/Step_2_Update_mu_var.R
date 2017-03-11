@@ -8,19 +8,19 @@ Step_2_Update_mu_var=function(model,num1)
       meanforupmu=(model$initial_mu_var$upvar[uu]*model$parameter$gamma0+model$parameter$eta0^2*sum(model$rstat[which(model$wholeindex==gg)]))/(model$initial_mu_var$upvar[uu]+model$parameter$eta0^2*sum(model$wholeindex==gg))
       varforupmu=model$initial_mu_var$upvar[uu]*model$parameter$eta0^2/(model$initial_mu_var$upvar[uu]+model$parameter$eta0^2*sum(model$wholeindex==gg))
       
-      model$initial_mu_var$upmu[uu]<-rnorm(1,mean=meanforupmu,sd=sqrt(varforupmu))
+      model$initial_mu_var$upmu[uu]<-stats::rnorm(1,mean=meanforupmu,sd=sqrt(varforupmu))
       all0<-model$parameter$alpha0+sum(model$wholeindex==gg)*0.5
       laa0<-sum((model$rstat[which(model$wholeindex==gg)]-model$initial_mu_var$upmu[uu])^2)*0.5+model$parameter$beta0
-      model$initial_mu_var$upvar[uu]<-rigamma(1,all0,laa0)
+      model$initial_mu_var$upvar[uu]<-pscl::rigamma(1,all0,laa0)
       
     }else{
       meanforupmu=(model$initial_mu_var$upvar[uu]*model$parameter$gamma1+model$parameter$eta1^2*sum(model$rstat[which(model$wholeindex==gg)]))/(model$initial_mu_var$upvar[uu]+model$parameter$eta1^2*sum(model$wholeindex==gg))
       varforupmu=model$initial_mu_var$upvar[uu]*model$parameter$eta1^2/(model$initial_mu_var$upvar[uu]+model$parameter$eta1^2*sum(model$wholeindex==gg))
       
-      model$initial_mu_var$upmu[uu]<-rnorm(1,mean=meanforupmu,sd=sqrt(varforupmu))
+      model$initial_mu_var$upmu[uu]<-stats::rnorm(1,mean=meanforupmu,sd=sqrt(varforupmu))
       all1<-model$parameter$alpha1+sum(model$wholeindex==gg)*0.5
       laa1<-sum((model$rstat[which(model$wholeindex==gg)]-model$initial_mu_var$upmu[uu])^2)*0.5+model$parameter$beta1
-      model$initial_mu_var$upvar[uu]<-rigamma(1,all1,laa1)
+      model$initial_mu_var$upvar[uu]<-pscl::rigamma(1,all1,laa1)
       
     }
     
